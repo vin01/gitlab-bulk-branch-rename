@@ -2,6 +2,8 @@
 
 Use Gitlab API to rename branches and help with bulk operations (eg. `master` -> `main` migration)
 
+*Note*: Unless a group id is passed using `--group`, it will rename branches for all projects which the auth token owner has access to.
+
 # usage
 
 ```
