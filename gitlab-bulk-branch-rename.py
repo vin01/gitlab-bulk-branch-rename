@@ -47,24 +47,24 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
                 branches = [branch["name"] for branch in proj_resp.json()]
                 if target in branches:
                     print("Skipping project `%s`, it already has branch `%s`." %
-                          (project["name"], target))
+                          (project["path_with_namespace"], target))
                 else:
                     if source in branches:
                         br_resp = SESSION.post(
                             "%s/api/v4/projects/%s/repository/branches?branch=%s&ref=%s" % (root_url, project["id"], target, source))
                         if not br_resp.ok:
                             print("project %s: failed to create branch, response code %s" % (
-                                project["name"], br_resp.status_code))
+                                project["path_with_namespace"], br_resp.status_code))
                             continue
                         default_br_resp = SESSION.put(
                             "%s/api/v4/projects/%s" % (root_url, project["id"]), data={"default_branch": target})
                         if not default_br_resp.ok:
                             print("project %s: failed to set default branch, response code %s" % (
-                                project["name"], default_br_resp.status_code))
+                                project["path_with_namespace"], default_br_resp.status_code))
                             continue
                         if br_resp.ok and default_br_resp.ok:
                             print("project %s: `%s` created and set as default branch." % (
-                                project["name"], target))
+                                project["path_with_namespace"], target))
                             if protect_new:
                                 r = SESSION.post(
                                     "%s/api/v4/projects/%s/protected_branches?name=%s" % (root_url, project["id"], target))
@@ -92,7 +92,7 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
                                     print("deleted branch `%s`." % (source))
                     else:
                         print("Skipping project `%s`, it does not have a protected branch named `%s`." % (
-                            project["name"], source))
+                            project["path_with_namespace"], source))
             print()
         if resp.links.get("next"):
             rename_branch(resp.links["next"]["url"], token, group,
