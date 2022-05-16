@@ -7,7 +7,7 @@ import fire
 SESSION = requests.session()
 
 
-def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, delete_old=True, source="master", target="main"):
+def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, delete_old=True, update_mrs=True, source="master", target="main"):
     """Migrate project branch to new remote branch using the Gitlab API.
     By default, marks new branch as protected and deletes old branch.
 
@@ -41,8 +41,9 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
     root_url = "%s://%s" % (urlparse(url).scheme, urlparse(url).netloc)
     if resp.ok:
         for project in resp.json():
+            # TODO: pagination
             proj_resp = SESSION.get(
-                "%s/api/v4/projects/%s/repository/branches" % (root_url, project["id"]))
+                "%s/api/v4/projects/%s/repository/branches?per_page=100" % (root_url, project["id"]))
             if proj_resp.ok:
                 branches = [branch["name"] for branch in proj_resp.json()]
                 if target in branches:
@@ -90,13 +91,28 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
                                         target, r.status_code))
                                 else:
                                     print("deleted branch `%s`." % (source))
+                            if update_mrs:
+                                # TODO: pagination
+                                mrs = SESSION.get(
+                                    "%s/api/v4/projects/%s/merge_requests?state=opened&scope=all&target_branch=%s&per_page=100" % (root_url, project["id"], source))
+                                if mrs.ok:
+                                    print("updating merge requests ..")
+                                    for mr in mrs.json():
+                                        br_update = SESSION.put("%s/api/v4/projects/%s/merge_requests/%s?target_branch=%s" % (
+                                            root_url, project["id"], mr["iid"], target))
+                                        if not br_update.ok:
+                                            print("failed to update merge request %s: %s" % (
+                                                mr["id"], br_update.text))
+                                else:
+                                    print(
+                                        "failed to retrieve merge requests: %s" % (mrs.text))
                     else:
-                        print("Skipping project `%s`, it does not have a protected branch named `%s`." % (
+                        print("Skipping project `%s`, it does not have a branch named `%s`." % (
                             project["path_with_namespace"], source))
             print()
         if resp.links.get("next"):
             rename_branch(resp.links["next"]["url"], token, group,
-                          protect_new, unprotect_old, delete_old, source, target)
+                          protect_new, unprotect_old, delete_old, update_mrs, source, target)
     else:
         print(resp.status_code)
 
