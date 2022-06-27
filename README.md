@@ -1,4 +1,4 @@
-[# gitlab-bulk-branch-rename
+# gitlab-bulk-branch-rename
 
 Use Gitlab API to rename branches and help with bulk operations (eg. `master` -> `main` migration)
 
@@ -59,4 +59,3 @@ FLAGS
     --target=TARGET
         Default: 'main'
 ```
-](https://github.com/vin01/gitlab-bulk-branch-rename/pulse)
