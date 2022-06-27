@@ -1,4 +1,4 @@
-# gitlab-bulk-branch-rename
+[# gitlab-bulk-branch-rename
 
 Use Gitlab API to rename branches and help with bulk operations (eg. `master` -> `main` migration)
 
@@ -27,6 +27,10 @@ DESCRIPTION
         Unprotect old/source branch
     delete_old bool
         Delete old/source branch
+    update_mrs
+        Update open merge requests
+    update_schedules
+        Update pipeline schedules
     source: str
         Source branch from which new branch should be created
     target; str
@@ -46,8 +50,13 @@ FLAGS
         Default: True
     --delete_old=DELETE_OLD
         Default: True
+    --update_mrs=UPDATE_MRS
+        Default: True
+    --update_schedules=UPDATE_SCHEDULES
+        Default: True
     --source=SOURCE
         Default: 'master'
     --target=TARGET
         Default: 'main'
 ```
+](https://github.com/vin01/gitlab-bulk-branch-rename/pulse)
