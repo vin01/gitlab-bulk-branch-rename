@@ -7,7 +7,7 @@ import fire
 SESSION = requests.session()
 
 
-def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, delete_old=True, update_mrs=True, source="master", target="main"):
+def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, delete_old=True, update_mrs=True, update_schedules=True, source="master", target="main"):
     """Migrate project branch to new remote branch using the Gitlab API.
     By default, marks new branch as protected and deletes old branch.
 
@@ -106,6 +106,19 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
                                 else:
                                     print(
                                         "failed to retrieve merge requests: %s" % (mrs.text))
+                            if update_schedules:
+                                schedules = SESSION.get(
+                                    "%s/api/v4/projects/%s/pipeline_schedules" % (root_url, project["id"]))
+                                if schedules.ok:
+                                    print("updating schedules ..")
+                                    for schedule in schedules.json():
+                                        if schedule["ref"] != target:
+                                            sch_update = SESSION.put("%s/api/v4/projects/%s/pipeline_schedules/%s?ref=%s" % (
+                                                root_url, project["id"], schedule["id"], target))
+                                            if not sch_update.ok:
+                                                print("failed to update schedule %s: %s" % (
+                                                    schedule["pipeline_schedule_id"], sch_update.text))
+
                     else:
                         print("Skipping project `%s`, it does not have a branch named `%s`." % (
                             project["path_with_namespace"], source))
