@@ -117,7 +117,7 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
                                                 root_url, project["id"], schedule["id"], target))
                                             if not sch_update.ok:
                                                 print("failed to update schedule %s: %s" % (
-                                                    schedule["pipeline_schedule_id"], sch_update.text))
+                                                    schedule["id"], sch_update.text))
 
                     else:
                         print("Skipping project `%s`, it does not have a branch named `%s`." % (
