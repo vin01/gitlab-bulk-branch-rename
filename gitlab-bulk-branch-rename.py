@@ -125,7 +125,7 @@ def rename_branch(url, token, group=None, protect_new=True, unprotect_old=True, 
             print()
         if resp.links.get("next"):
             rename_branch(resp.links["next"]["url"], token, group,
-                          protect_new, unprotect_old, delete_old, update_mrs, source, target)
+                          protect_new, unprotect_old, delete_old, update_mrs, update_schedules, source, target)
     else:
         print(resp.status_code)
 
